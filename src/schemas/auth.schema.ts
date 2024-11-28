@@ -9,3 +9,52 @@ export const registerSchema = z.object({
 }).refine( (data)=> data.password === data.confirmPassword, {
     message: "password do not match"
 })
+
+
+export const loginSchema = z.object({
+    email : z.string().email().max(225),
+    password: z.string().min(8).max(20),
+    userAgent: z.string().optional()
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

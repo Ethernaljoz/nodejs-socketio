@@ -1,5 +1,5 @@
 import VerificationCodeModel from "../models/verificationCode.model";
-import { CONFLICT } from "../constants/httpCode";
+import { CONFLICT, UNAUTHORIZED } from "../constants/httpCode";
 import UserModel from "../models/user.model";
 import { appAssert } from "../utils/AppError";
 import { verificationCodeType } from "../utils/types";
@@ -44,3 +44,33 @@ export const createAccount =async ( data: CreateAccountParams)=>{
         refreshToken,
     }
 }
+
+type LoginParams ={
+    email: string;
+    password: string;
+    userAgent?: string;
+}
+
+export const login = async (data: LoginParams)=>{
+    const user = await UserModel.findOne({email:data.email})
+    appAssert(user,UNAUTHORIZED,"Invalid email or password")
+
+    const passwordMatch =user.comparePassword(data.password)
+    appAssert(passwordMatch,UNAUTHORIZED,"Invalid email or password")
+
+    const session = await SessionModel.create({
+        userId:user._id,
+        userAgent:data.userAgent,
+    })
+
+    const accessToken = signToken({userId:user._id, sessionId:session._id})
+    const refreshToken = signToken({sessionId:session._id}, refreshTokenOptions)
+
+    return {
+        user: user.omitPassword(),
+        accessToken,
+        refreshToken,
+    }
+}
+
+
