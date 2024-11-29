@@ -8,11 +8,11 @@ import SessionModel from "../models/session.model";
 import { signToken, refreshTokenOptions } from "../utils/jwt";
 
 
-type CreateAccountParams= {
-    username: string;
-    email: string;
-    password: string;
-    userAgent?: string;
+interface CreateAccountParams{
+    username: string,
+    email: string,
+    password: string,
+    userAgent?: string,
 }
 
 
@@ -45,10 +45,10 @@ export const createAccount =async ( data: CreateAccountParams)=>{
     }
 }
 
-type LoginParams ={
-    email: string;
-    password: string;
-    userAgent?: string;
+interface LoginParams {
+    email: string,
+    password: string,
+    userAgent?: string,
 }
 
 export const login = async (data: LoginParams)=>{

@@ -46,6 +46,7 @@ export const verifyToken =<TPayload extends object = accessTokenPayload> (token:
     const {secret = JWT_REFRESH_SECRET,...verifyOpts} = options || {}
     try {
         const payload = jwt.verify(token, secret, {...defaultOptions, ...verifyOpts}) as TPayload
+        return {payload}
     } catch (error :any) {
         return {
             error: error.message,
