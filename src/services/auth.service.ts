@@ -3,9 +3,9 @@ import { CONFLICT, UNAUTHORIZED } from "../constants/httpCode";
 import UserModel from "../models/user.model";
 import { appAssert } from "../utils/AppError";
 import { verificationCodeType } from "../utils/types";
-import { oneYearFromNow } from "../utils/helpers";
+import { oneDays, oneYearFromNow, ThirtyDaysFromNow } from "../utils/helpers";
 import SessionModel from "../models/session.model";
-import { signToken, refreshTokenOptions } from "../utils/jwt";
+import { signToken, refreshTokenOptions, verifyToken, refreshTokenPayload } from "../utils/jwt";
 
 
 interface CreateAccountParams{
@@ -73,4 +73,29 @@ export const login = async (data: LoginParams)=>{
     }
 }
 
+export const refreshUserAccessToken =async(refreshToken:string)=>{
+    const { payload } = verifyToken<refreshTokenPayload>(refreshToken, {secret: refreshTokenOptions.secret})
+    appAssert(payload,UNAUTHORIZED,"Invalid refresh token")
 
+    const session = await SessionModel.findById(payload.sessionId)
+    const now = Date.now()
+    appAssert(session && session.expiresAt.getTime() > now,UNAUTHORIZED,"Session expired")
+
+    const sessionNeedsRefresh = session.expiresAt.getTime() - now < oneDays
+
+    if (sessionNeedsRefresh) {
+       session.expiresAt = ThirtyDaysFromNow()
+        await session.save()
+    }
+
+    const accessToken = signToken({userId:session.userId,
+        sessionId:session._id
+    })
+
+    const newRefreshToken = sessionNeedsRefresh ? signToken({sessionId:session._id},refreshTokenOptions) : undefined
+
+    return {
+        accessToken,
+        newRefreshToken
+    }
+}
