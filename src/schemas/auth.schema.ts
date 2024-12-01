@@ -17,7 +17,7 @@ export const loginSchema = z.object({
     userAgent: z.string().optional()
 })
 
-
+export const  verificationCodeSchema = z.string().min(1).max(26)
 
 
 

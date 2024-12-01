@@ -1,5 +1,5 @@
 import VerificationCodeModel from "../models/verificationCode.model";
-import { CONFLICT, UNAUTHORIZED } from "../constants/httpCode";
+import { CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, UNAUTHORIZED } from "../constants/httpCode";
 import UserModel from "../models/user.model";
 import { appAssert } from "../utils/AppError";
 import { verificationCodeType } from "../utils/types";
@@ -98,4 +98,23 @@ export const refreshUserAccessToken =async(refreshToken:string)=>{
         accessToken,
         newRefreshToken
     }
+}
+
+export const verifyEmail = async(code:string)=>{
+    const validCode = await VerificationCodeModel.findOne({
+    _id:code,
+    type:verificationCodeType.EmailVerification,
+    expiresAt:{$gte: new Date()}
+    })
+
+    appAssert(validCode,NOT_FOUND,"Invalid or expired verification code")
+
+    const updatedUser = await UserModel.findByIdAndUpdate(
+        validCode.userId,{verified:true}, {new:true}
+    )
+
+    appAssert(updatedUser,INTERNAL_SERVER_ERROR,"failed to verify email")
+    
+    await validCode.deleteOne()
+    return{user: updatedUser.omitPassword()}
 }
