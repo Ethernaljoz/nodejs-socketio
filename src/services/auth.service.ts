@@ -1,11 +1,12 @@
 import VerificationCodeModel from "../models/verificationCode.model";
-import { CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, UNAUTHORIZED } from "../constants/httpCode";
+import { CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS, UNAUTHORIZED } from "../constants/httpCode";
 import UserModel from "../models/user.model";
 import { appAssert } from "../utils/AppError";
 import { verificationCodeType } from "../utils/types";
-import { oneDays, oneYearFromNow, ThirtyDaysFromNow } from "../utils/helpers";
+import { fiveMinutesAgo, oneDays, oneHourFromNow, oneYearFromNow, ThirtyDaysFromNow } from "../utils/helpers";
 import SessionModel from "../models/session.model";
 import { signToken, refreshTokenOptions, verifyToken, refreshTokenPayload } from "../utils/jwt";
+import { APP_ORIGIN } from "../constants/env";
 
 
 interface CreateAccountParams{
@@ -118,3 +119,96 @@ export const verifyEmail = async(code:string)=>{
     await validCode.deleteOne()
     return{user: updatedUser.omitPassword()}
 }
+
+export const sendPasswordResetEmail = async(email: string)=>{
+    const user = await UserModel.findOne({email})
+    appAssert(user,NOT_FOUND,"User not found")
+
+    const count = await VerificationCodeModel.countDocuments({
+        userId:user._id,
+        type:verificationCodeType.PasswordReset,
+        createdAt:{$gt:fiveMinutesAgo()}
+    })
+
+    appAssert(count <=1,TOO_MANY_REQUESTS,"Too many request,please try again later")
+
+    const expiresAt = oneHourFromNow()
+    const verificationCode = await VerificationCodeModel.create({
+        userId:user._id,
+        type:verificationCodeType.PasswordReset,
+        expiresAt,
+    })
+
+    const url =`${APP_ORIGIN}/password/reset?code:${verificationCode._id}&exp=${expiresAt.getTime()}`
+
+    // @send mail
+    //handle error
+    // return url and email id
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

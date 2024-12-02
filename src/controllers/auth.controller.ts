@@ -1,5 +1,5 @@
-import { createAccount, login, refreshUserAccessToken, verifyEmail } from "../services/auth.service";
-import { loginSchema, registerSchema, verificationCodeSchema } from "../schemas/auth.schema";
+import { createAccount, login, refreshUserAccessToken, sendPasswordResetEmail, verifyEmail } from "../services/auth.service";
+import { emailSchema, loginSchema, registerSchema, verificationCodeSchema } from "../schemas/auth.schema";
 import catchErrors from "../utils/catchErrors";
 import { clearAuthCookie, getAccessTokenCookieOptions, getRefreshTokenCookieOptions, setAuthCookie } from "../utils/cookie";
 import { CREATED, OK, UNAUTHORIZED } from "../constants/httpCode";
@@ -67,3 +67,45 @@ export const verifyEmailHandler = catchErrors(
         return res.status(OK).json({message: "Email verified successfully",})
     }
 )
+
+
+export const sendPasswordResetHandler = catchErrors(
+    async(req, res)=>{
+        const email = emailSchema.parse(req.body.email)
+
+        await sendPasswordResetEmail(email)
+
+        return res.status(OK).json({message: "Password reset email sent ",})
+    }
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
