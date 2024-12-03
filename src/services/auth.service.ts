@@ -7,7 +7,7 @@ import { fiveMinutesAgo, oneDays, oneHourFromNow, oneYearFromNow, ThirtyDaysFrom
 import SessionModel from "../models/session.model";
 import { signToken, refreshTokenOptions, verifyToken, refreshTokenPayload } from "../utils/jwt";
 import { APP_ORIGIN } from "../constants/env";
-
+import bcrypt from "bcrypt"
 
 interface CreateAccountParams{
     username: string,
@@ -147,6 +147,36 @@ export const sendPasswordResetEmail = async(email: string)=>{
 
 }
 
+type ResetParams = {
+    verificationCode: string,
+    password: string
+}
+
+export const resetPassword= async({verificationCode,password}: ResetParams) => {
+    const validCode = await VerificationCodeModel.findOne({
+        _id:verificationCode,
+        type:verificationCodeType.PasswordReset,
+        expiresAt:{$gt:new Date()}
+    })
+
+    appAssert(validCode,NOT_FOUND,"Invalid or expired verification code")
+
+    const updatedUser = await UserModel.findByIdAndUpdate(
+        validCode.userId,
+        {password : await bcrypt.hash(password, 12)}
+    )
+
+    appAssert(updatedUser,INTERNAL_SERVER_ERROR,"failed to reset the user password")
+
+    await validCode.deleteOne()
+
+    await SessionModel.deleteMany({userId:validCode.userId})
+
+    return {
+        user: updatedUser.omitPassword()
+    }
+
+}
 
 
 
