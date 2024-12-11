@@ -6,7 +6,8 @@ import { CREATED, OK, UNAUTHORIZED } from "../constants/httpCode";
 import { verifyToken } from "../utils/jwt";
 import SessionModel from "../models/session.model";
 import { appAssert } from "../utils/AppError";
-
+import { sendMail } from "../utils/sendMail"
+import { APP_ORIGIN } from "../constants/env"
 
 
 

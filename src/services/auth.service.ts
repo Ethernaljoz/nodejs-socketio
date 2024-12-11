@@ -30,6 +30,16 @@ export const createAccount =async ( data: CreateAccountParams)=>{
     })
 
     //send email
+    const url = `${APP_ORIGIN}/email/verify/${verificationCode._id}`
+
+    const { error } = await sendMail({
+      to: user.email,
+      ...getVerifyEmailTemplate(url),
+    });
+
+    if(error){
+        return console.error({ error });
+    } 
 
     const session = await SessionModel.create({
         userId:user._id,
@@ -139,11 +149,20 @@ export const sendPasswordResetEmail = async(email: string)=>{
         expiresAt,
     })
 
-    const url =`${APP_ORIGIN}/password/reset?code:${verificationCode._id}&exp=${expiresAt.getTime()}`
 
-    // @send mail
-    //handle error
-    // return url and email id
+    const url = `${APP_ORIGIN}/password/reset?code=${verificationCode._id}&exp=${expiresAt.getTime()}`
+
+    const { data, error } = await sendMail({
+      to: email,
+      ...getPasswordResetTemplate(url),
+    });
+
+    appAssert(data?.id, INTERNAL_SERVER_ERROR,`${error?.name} - ${error?.message}`)
+
+    return {
+        url,
+        emailId : data.id
+    }
 
 }
 

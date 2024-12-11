@@ -1,10 +1,10 @@
 {
   "name": "nodejs-socketio-typescript",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "dev": "nodemon",
-    "start": "node index.js",
+    "start": "node server.js",
     "build": "tsc && cp ./package.json ./dist"
   },
   "keywords": [],
@@ -31,8 +31,8 @@
     "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.2",
-    "nodemailer": "^6.9.16",
     "socket.io": "^4.8.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "resend": "^4.0.0"
   }
 }

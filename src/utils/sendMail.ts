@@ -1,6 +1,5 @@
-import nodemailer from "nodemailer";
-import { EMAIL_APP_PASSWORD, EMAIL_SENDER } from "../constants/env";
-
+import { Resend } from "resend";
+import { EMAIL_SENDER, NODE_ENV, RESEND_API_KEY } from "../constants/env";
 
 type Params = {
     to:string,
@@ -9,26 +8,19 @@ type Params = {
     html:string,
 }
 
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: EMAIL_SENDER,
-      pass: EMAIL_APP_PASSWORD,
-    },
-  });
-  
+const getFromEmail = () => NODE_ENV === "development" ? "onboarding@resend.dev" : EMAIL_SENDER
+const getToEmail = (to: string) => NODE_ENV === "development" ? "delivered@resend.dev" : to;
 
+const resend = new Resend(RESEND_API_KEY)
 
-    export const sendMail = async ({text, to, subject, html}: Params) =>
-        await transporter.sendMail({
-            from: EMAIL_SENDER,
-            to: to,
-            subject,
-            text,
-            html
-        })
-    
-
+export const sendMail = async ({text, to, subject, html}: Params) =>
+    await resend.emails.send({
+        from: getFromEmail(),
+        to: getToEmail(to),
+        subject,
+        text,
+        html
+    })
 
 
 
