@@ -9,6 +9,7 @@ import errorHandler from "./middlewares/errorHandler"
 import connectDB from "./utils/db"
 import userRoutes from "./routes/user.routes"
 import authenticate from "./middlewares/authenticate"
+import sessionRoutes from "./routes/session.routes"
 
 
 const app = express()
@@ -30,6 +31,7 @@ app.use(cors({
 
 app.use("/auth", authRoutes)
 app.use("/user",authenticate ,userRoutes)
+app.use("/session",authenticate ,sessionRoutes)
 
 
 app.use(errorHandler)
