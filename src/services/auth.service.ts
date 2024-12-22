@@ -1,13 +1,16 @@
 import VerificationCodeModel from "../models/verificationCode.model";
-import { CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS, UNAUTHORIZED } from "../constants/httpCode";
+import SessionModel from "../models/session.model";
+import bcrypt from "bcrypt"
 import UserModel from "../models/user.model";
+import { CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS, UNAUTHORIZED } from "../constants/httpCode";
 import { appAssert } from "../utils/AppError";
 import { verificationCodeType } from "../utils/types";
 import { fiveMinutesAgo, oneDays, oneHourFromNow, oneYearFromNow, ThirtyDaysFromNow } from "../utils/helpers";
-import SessionModel from "../models/session.model";
 import { signToken, refreshTokenOptions, verifyToken, refreshTokenPayload } from "../utils/jwt";
 import { APP_ORIGIN } from "../constants/env";
-import bcrypt from "bcrypt"
+import { getPasswordResetTemplate } from "../constants/emailTemplate";
+import { sendMail } from "../utils/sendMail";
+import { getVerifyEmailTemplate } from "../constants/emailTemplate";
 
 interface CreateAccountParams{
     username: string,

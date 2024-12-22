@@ -4,9 +4,12 @@ import cors from "cors"
 import "dotenv/config"
 import { APP_ORIGIN, PORT } from "./constants/env"
 import cookieParser from "cookie-parser"
-import authRouter from "./routes/auth.routes"
+import authRoutes from "./routes/auth.routes"
 import errorHandler from "./middlewares/errorHandler"
 import connectDB from "./utils/db"
+import userRoutes from "./routes/user.routes"
+import authenticate from "./middlewares/authenticate"
+
 
 const app = express()
 const server = createServer(app)
@@ -25,7 +28,8 @@ app.use(cors({
 );
 
 
-app.use("/auth", authRouter)
+app.use("/auth", authRoutes)
+app.use("/user",authenticate ,userRoutes)
 
 
 app.use(errorHandler)
