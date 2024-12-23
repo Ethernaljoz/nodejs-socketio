@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { sendMessage } from "../controllers/messsage.controller";
+import { getMessages, sendMessage } from "../controllers/messsage.controller";
 
 const messageRoutes = Router()
 
 // prefix /message
 messageRoutes.post("/send/:id",sendMessage)
+messageRoutes.get("/:id",getMessages)
 
 
 

@@ -1,7 +1,6 @@
 import { z } from "zod";
 import catchErrors from "../utils/catchErrors";
 import ConversationModel from "../models/conversation.model";
-import { appAssert } from "../utils/AppError";
 import MessageModel from "../models/message.model";
 import { OK } from "../constants/httpCode";
 
@@ -28,9 +27,45 @@ export const sendMessage = catchErrors(
     })
 
     if(newMessage){
-        conversation.messageIds.push(newMessage._id!)  
+        conversation = await ConversationModel.findByIdAndUpdate(
+            {_id: conversation._id},
+            {$push:{"messageIds":newMessage._id}},
+        )
     }
 
     //socket io will go here
     return res.status(OK).json(newMessage)
 })
+
+
+
+
+export const getMessages = catchErrors( 
+    async(req, res)=>{
+        const userToChatId = z.string().parse(req.params.id)
+        const senderId = req.userId
+
+        const conversation = await ConversationModel.findOne({
+            participantIds :{$all :[senderId, userToChatId]}
+        }).populate("messageIds")
+
+        return res.status(OK).json(conversation?.messageIds)
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
