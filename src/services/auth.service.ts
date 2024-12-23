@@ -12,58 +12,67 @@ import { getPasswordResetTemplate } from "../constants/emailTemplate";
 import { sendMail } from "../utils/sendMail";
 import { getVerifyEmailTemplate } from "../constants/emailTemplate";
 
-interface CreateAccountParams{
-    username: string,
-    email: string,
-    password: string,
-    userAgent?: string,
-}
+type CreateAccountParams = {
+    username:string;
+    email: string;
+    password: string;
+    userAgent?: string;
+  };
 
 
-export const createAccount =async ( data: CreateAccountParams)=>{
-    const existingUser = await UserModel.exists({email: data.email})
-    appAssert(!existingUser, CONFLICT,"Email already in use")
-
-    const user = await UserModel.create({username: data.username, email:data.email, password: data.password})
-
+  export const createAccount = async (data: CreateAccountParams) => {
+    // verify email is not taken
+    const existingUser = await UserModel.exists({
+      email: data.email,
+    });
+    appAssert(!existingUser, CONFLICT, "Email already in use");
+  
+    const user = await UserModel.create({
+      email: data.email,
+      password: data.password,
+    });
+    const userId = user._id;
     const verificationCode = await VerificationCodeModel.create({
-        userId: user._id,
-        type: verificationCodeType.EmailVerification,
-        expiresAt: oneYearFromNow()
-    })
-
-    //send email
-    const url = `${APP_ORIGIN}/email/verify/${verificationCode._id}`
-
+      userId,
+      type: verificationCodeType.EmailVerification,
+      expiresAt: oneYearFromNow(),
+    });
+  
+    const url = `${APP_ORIGIN}/email/verify/${verificationCode._id}`;
+  
     const { error } = await sendMail({
       to: user.email,
       ...getVerifyEmailTemplate(url),
     });
-
-    if(error){
-        return console.error({ error });
-    } 
-
+    if (error) console.error(error);
+  
     const session = await SessionModel.create({
-        userId:user._id,
-        userAgent : data.userAgent,
-    })
-
-    const accessToken = signToken({userId:user._id, sessionId:session._id})
-    const refreshToken = signToken({sessionId:session._id }, refreshTokenOptions)
-
+      userId,
+      userAgent: data.userAgent,
+    });
+  
+    const refreshToken = signToken(
+      {
+        sessionId: session._id,
+      },
+      refreshTokenOptions
+    );
+    const accessToken = signToken({
+      userId,
+      sessionId: session._id,
+    });
     return {
-        user: user.omitPassword(),
-        accessToken,
-        refreshToken,
-    }
-}
+      user: user.omitPassword(),
+      accessToken,
+      refreshToken,
+    };
+  };
 
-interface LoginParams {
-    email: string,
-    password: string,
-    userAgent?: string,
-}
+type LoginParams = {
+    email: string;
+    password: string;
+    userAgent?: string;
+};
 
 export const login = async (data: LoginParams)=>{
     const user = await UserModel.findOne({email:data.email})
@@ -134,15 +143,16 @@ export const verifyEmail = async(code:string)=>{
 }
 
 export const sendPasswordResetEmail = async(email: string)=>{
+    try {
     const user = await UserModel.findOne({email})
     appAssert(user,NOT_FOUND,"User not found")
 
+    const fiveMinAgo = fiveMinutesAgo()
     const count = await VerificationCodeModel.countDocuments({
         userId:user._id,
         type:verificationCodeType.PasswordReset,
-        createdAt:{$gt:fiveMinutesAgo()}
+        createdAt:{$gt:fiveMinAgo}
     })
-
     appAssert(count <=1,TOO_MANY_REQUESTS,"Too many request,please try again later")
 
     const expiresAt = oneHourFromNow()
@@ -151,7 +161,6 @@ export const sendPasswordResetEmail = async(email: string)=>{
         type:verificationCodeType.PasswordReset,
         expiresAt,
     })
-
 
     const url = `${APP_ORIGIN}/password/reset?code=${verificationCode._id}&exp=${expiresAt.getTime()}`
 
@@ -166,15 +175,19 @@ export const sendPasswordResetEmail = async(email: string)=>{
         url,
         emailId : data.id
     }
-
+        
+    } catch (error:any) {
+        console.log("SendPasswordResetEmail :",error.message)
+    }
+    
 }
 
-type ResetParams = {
-    verificationCode: string,
-    password: string
-}
+type ResetPasswordParams = {
+    password: string;
+    verificationCode: string;
+};
 
-export const resetPassword= async({verificationCode,password}: ResetParams) => {
+export const resetPassword= async({verificationCode,password}: ResetPasswordParams) => {
     const validCode = await VerificationCodeModel.findOne({
         _id:verificationCode,
         type:verificationCodeType.PasswordReset,

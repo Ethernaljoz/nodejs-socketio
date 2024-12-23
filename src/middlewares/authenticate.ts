@@ -11,7 +11,7 @@ const authenticate: RequestHandler = (req,res,next)=> {
     appAssert(accesToken, UNAUTHORIZED,"not authorized- invalid access token")
 
     const { error, payload } = verifyToken(accesToken)
-    appAssert(error, UNAUTHORIZED,error ==="jwt expired"?"token expired":"invalid token")
+    appAssert(payload, UNAUTHORIZED,error ==="jwt expired"?"token expired":"invalid token")
 
     req.userId = payload.userId as mongoose.Types.ObjectId,
     req.sessionId = payload.sessionId as mongoose.Types.ObjectId

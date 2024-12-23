@@ -1,4 +1,4 @@
-import { ErrorRequestHandler,Response } from "express";
+import { NextFunction, Response,Request } from "express";
 import AppError from "../utils/AppError";
 import { BAD_REQUEST, INTERNAL_SERVER_ERROR } from "../constants/httpCode";
 import { z } from "zod";
@@ -18,7 +18,7 @@ const handleZodError = (res: Response, error:z.ZodError) => {
 }
 
 
-const errorHandler:ErrorRequestHandler = async (error,req,res,next)=>{
+const errorHandler = (error: any,req: Request,res:Response,next:NextFunction)=>{
     if(req.path === REFRESH_PATH){
         clearAuthCookie(res)
     }

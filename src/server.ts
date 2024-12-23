@@ -36,7 +36,7 @@ app.use("/session",authenticate ,sessionRoutes)
 
 app.use(errorHandler)
 
-server.listen(port,()=>{
+server.listen(port, ()=>{
   connectDB()
     console.log(`server running on http://localhost:${port}`)
 })
