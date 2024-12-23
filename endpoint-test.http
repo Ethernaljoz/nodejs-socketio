@@ -1,0 +1,93 @@
+#   you need to download a <<REST Client>> extension in vscode 
+
+
+
+#-----------------------------AUTH ENDPOINT-------------------------------------------------------
+
+### ------------------REGISTER
+POST http://localhost:5000/auth/register HTTP/1.1
+content-type: application/json
+
+{
+    "email": "test@gmail.com",
+    "username": "jojo",
+    "password": "12345678",
+    "confirmPassword": "12345678"
+}
+
+### --------------------LOGIN
+POST http://localhost:5000/auth/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "test@gmail.com",
+    "password": "12345678"
+}
+
+
+### --------------------LOGOUT
+GET http://localhost:5000/auth/logout HTTP/1.1
+
+authRoutes.get("/email/verify/:code",verifyEmailHandler)
+authRoutes.post("/password/forgot",sendPasswordResetHandler)
+authRoutes.post("/password/reset",resetPasswordHandler)
+
+
+### --------------------LOGOUT
+GET http://localhost:5000/auth/refresh HTTP/1.1
+
+
+### --------------------REFRESH
+GET http://localhost:5000/auth//email/verify/:code HTTP/1.1
+
+
+### --------------------FORGOT PASSWORD EMAIL SEND
+POST http://localhost:5000/auth/password/forgot HTTP/1.1
+content-type: application/json
+
+{
+    "email": "test@gmail.com",
+}
+
+
+### --------------------RESET PASSWORD
+POST http://localhost:5000/auth/password/reset HTTP/1.1
+content-type: application/json
+
+{
+    "verificationCode": "",
+    "password": "12345678"
+}
+
+
+#-----------------------------USER ENDPOINT-------------------------------------------------------
+
+### ----------------GET USER
+GET http://localhost:5000/user/ HTTP/1.1
+
+
+
+
+#-----------------------------SESSION ENDPOINT-------------------------------------------------------
+
+### ----------------GET ALL SESSIONS
+GET http://localhost:5000/session/ HTTP/1.1
+
+### -----------------DELETE SESSION
+DELETE http://localhost:5000/:id/ HTTP/1.1
+sessionRoutes.get("/",getSessionHandler)
+sessionRoutes.delete("/:id",deleteSessionHandler)
+
+
+
+
+
+
+
+
+
+
+
+
+
+

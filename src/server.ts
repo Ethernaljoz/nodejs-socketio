@@ -10,6 +10,7 @@ import connectDB from "./utils/db"
 import userRoutes from "./routes/user.routes"
 import authenticate from "./middlewares/authenticate"
 import sessionRoutes from "./routes/session.routes"
+import messageRoutes from "./routes/message.routes"
 
 
 const app = express()
@@ -30,8 +31,9 @@ app.use(cors({
 
 
 app.use("/auth", authRoutes)
-app.use("/user",authenticate ,userRoutes)
-app.use("/session",authenticate ,sessionRoutes)
+app.use("/user", authenticate, userRoutes)
+app.use("/session", authenticate, sessionRoutes)
+app.use("/message", authenticate, messageRoutes)
 
 
 app.use(errorHandler)

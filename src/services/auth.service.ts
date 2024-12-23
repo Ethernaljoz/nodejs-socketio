@@ -28,8 +28,10 @@ type CreateAccountParams = {
     appAssert(!existingUser, CONFLICT, "Email already in use");
   
     const user = await UserModel.create({
+      username: data.username,
       email: data.email,
       password: data.password,
+      userAgent: data.userAgent
     });
     const userId = user._id;
     const verificationCode = await VerificationCodeModel.create({
