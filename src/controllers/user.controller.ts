@@ -10,3 +10,61 @@ export const getUserHandler = catchErrors(
        appAssert(user,NOT_FOUND,"User not found")
        return res.status(OK).json(user.omitPassword())
 })
+
+
+export const getUsersForSidebar = catchErrors( 
+    async(req, res)=>{
+        const userId = req.userId
+       const usersFind = await UserModel.find({
+        where:{
+            _id :{$not : userId}
+        }
+       })
+       const users = usersFind.map( user => user.omitPassword())
+       return res.status(OK).json(users)
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
