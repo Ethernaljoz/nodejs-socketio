@@ -28,17 +28,13 @@ content-type: application/json
 ### --------------------LOGOUT
 GET http://localhost:5000/auth/logout HTTP/1.1
 
-authRoutes.get("/email/verify/:code",verifyEmailHandler)
-authRoutes.post("/password/forgot",sendPasswordResetHandler)
-authRoutes.post("/password/reset",resetPasswordHandler)
 
-
-### --------------------LOGOUT
+### --------------------REFRESH
 GET http://localhost:5000/auth/refresh HTTP/1.1
 
 
-### --------------------REFRESH
-GET http://localhost:5000/auth//email/verify/:code HTTP/1.1
+### --------------------VERIFY EMAIL
+GET http://localhost:5000/auth/email/verify/6769d278f3c69526addeafce HTTP/1.1
 
 
 ### --------------------FORGOT PASSWORD EMAIL SEND
@@ -64,8 +60,9 @@ content-type: application/json
 
 ### ----------------GET USER
 GET http://localhost:5000/user/ HTTP/1.1
+### ----------------GET USER FOR SIDEBAR
 
-
+GET http://localhost:5000/user/conversation HTTP/1.1
 
 
 #-----------------------------SESSION ENDPOINT-------------------------------------------------------
@@ -74,13 +71,25 @@ GET http://localhost:5000/user/ HTTP/1.1
 GET http://localhost:5000/session/ HTTP/1.1
 
 ### -----------------DELETE SESSION
-DELETE http://localhost:5000/:id/ HTTP/1.1
-sessionRoutes.get("/",getSessionHandler)
-sessionRoutes.delete("/:id",deleteSessionHandler)
+DELETE http://localhost:5000/session/:id/ HTTP/1.1
 
 
 
+#-----------------------------MESSAGE ENDPOINT-------------------------------------------------------
 
+
+### ----------------GET MESSAGE
+GET http://localhost:5000/message/:id HTTP/1.1
+messageRoutes.get("/:id",getMessages)
+messageRoutes.post("/send/:id",sendMessage)
+
+### ----------------POST MESSAGE
+POST http://localhost:5000/message/send/:id HTTP/1.1
+content-type: application/json
+
+{
+    "content": "",
+}
 
 
 

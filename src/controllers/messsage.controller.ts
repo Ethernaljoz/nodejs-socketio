@@ -3,6 +3,7 @@ import catchErrors from "../utils/catchErrors";
 import ConversationModel from "../models/conversation.model";
 import MessageModel from "../models/message.model";
 import { OK } from "../constants/httpCode";
+import { getReceiverSocketId, io } from "../utils/socket";
 
 export const sendMessage = catchErrors( 
     async(req, res)=>{
@@ -33,7 +34,11 @@ export const sendMessage = catchErrors(
         )
     }
 
-    //socket io will go here
+    const receiverSocketId = getReceiverSocketId(receiverId)
+    if(receiverSocketId){
+        io.to(receiverSocketId).emit("newMessage", newMessage)
+    }
+    
     return res.status(OK).json(newMessage)
 })
 
