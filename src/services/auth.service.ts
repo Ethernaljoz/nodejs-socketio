@@ -42,11 +42,11 @@ type CreateAccountParams = {
   
     const url = `${APP_ORIGIN}/email/verify/${verificationCode._id}`;
   
-    const { error } = await sendMail({
+    const  sentMessageInfo  = await sendMail({
       to: user.email,
       ...getVerifyEmailTemplate(url),
     });
-    if (error) console.error(error);
+    if (sentMessageInfo.rejected) console.error(sentMessageInfo.response);
   
     const session = await SessionModel.create({
       userId,
@@ -166,16 +166,16 @@ export const sendPasswordResetEmail = async(email: string)=>{
 
     const url = `${APP_ORIGIN}/password/reset?code=${verificationCode._id}&exp=${expiresAt.getTime()}`
 
-    const { data, error } = await sendMail({
+    const sentMessageInfo= await sendMail({
       to: email,
       ...getPasswordResetTemplate(url),
     });
 
-    appAssert(data?.id, INTERNAL_SERVER_ERROR,`${error?.name} - ${error?.message}`)
+    appAssert(sentMessageInfo.rejected, INTERNAL_SERVER_ERROR,`${sentMessageInfo.response}`)
 
     return {
         url,
-        emailId : data.id
+        emailId : sentMessageInfo.messageId
     }
         
     } catch (error:any) {

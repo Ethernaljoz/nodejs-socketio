@@ -1,6 +1,6 @@
-import express from "express"
+import express,{Response, Request} from "express"
 import "dotenv/config"
-import { APP_ORIGIN, PORT } from "./constants/env"
+import { PORT } from "./constants/env"
 import cookieParser from "cookie-parser"
 import authRoutes from "./routes/auth.routes"
 import errorHandler from "./middlewares/errorHandler"
@@ -20,12 +20,21 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
 
+app.get("/", (req: Request, res: Response) => {
+  res.send('<h1>Welcome to Socketio ts</h1>');
+});
 
 
-app.use("/auth", authRoutes)
-app.use("/user", authenticate, userRoutes)
-app.use("/session", authenticate, sessionRoutes)
-app.use("/message", authenticate, messageRoutes)
+
+app.use("/api/auth", authRoutes)
+app.use("/api/user", authenticate, userRoutes)
+app.use("/api/session", authenticate, sessionRoutes)
+app.use("/api/message", authenticate, messageRoutes)
+
+
+app.use((req: Request, res: Response) => {
+  res.status(404).json({message: "Route not found"})
+})
 
 
 app.use(errorHandler)
